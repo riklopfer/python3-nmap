@@ -80,23 +80,28 @@ class Nmap(object):
             return self.default_command_privileged()
 
         if self.enable_ipv6:
-            return self.default_args.format(nmap=self.nmaptool, outarg="-oX", enable_ipv6="-6")
+            v6_flag = "-6"
         else:
-            return self.default_args.format(nmap=self.nmaptool, outarg="-oX")
+            v6_flag = ""
+
+        return self.default_args.format(nmap=self.nmaptool, outarg="-oX", enable_ipv6=v6_flag)
 
     def default_command_privileged(self):
         """
         Commands that require root privileges
         """
-        if OS_TYPE == 'win32':
-            # Elevate privileges and return nmap command
-            # For windows now is not fully supported so just return the default
-            return self.default_command()
-        else:
-            if self.enable_ipv6:
-                return self.default_args.format(nmap=self.nmaptool, outarg="-oX", enable_ipv6="-6")
-            else:
-                return self.default_args.format(nmap=self.nmaptool, outarg="-oX")
+        # I don't see the difference between this method and the non-previlaged version todo implement?
+        return self.default_command()
+
+        # if OS_TYPE == 'win32':
+        #     # Elevate privileges and return nmap command
+        #     # For windows now is not fully supported so just return the default
+        #     return self.default_command()
+        # else:
+        #     if self.enable_ipv6:
+        #         return self.default_args.format(nmap=self.nmaptool, outarg="-oX", enable_ipv6="-6")
+        #     else:
+        #         return self.default_args.format(nmap=self.nmaptool, outarg="-oX")
 
     def nmap_version(self):
         """
@@ -342,7 +347,7 @@ class NmapScanTechniques(Nmap):
 
         return xml_root
 
-    def nmap_fin_scan(self, target, args=None):
+    def nmap_fin_scan(self, target, args=None, timeout=None):
         """
         Perform scan using nmap's fin scan
 
@@ -351,11 +356,11 @@ class NmapScanTechniques(Nmap):
         """
         self.require_root()
 
-        xml_root = self.scan_command(self.fin_scan, target=target, args=args)
+        xml_root = self.scan_command(self.fin_scan, target=target, args=args, timeout=timeout)
         results = self.parser.filter_top_ports(xml_root)
         return results
 
-    def nmap_syn_scan(self, target, args=None):
+    def nmap_syn_scan(self, target, args=None, timeout=None):
         """
         Perform syn scan on this given
         target
@@ -363,11 +368,11 @@ class NmapScanTechniques(Nmap):
         @cmd nmap -sS 192.168.178.1
         """
         self.require_root()
-        xml_root = self.scan_command(self.sync_scan, target=target, args=args)
+        xml_root = self.scan_command(self.sync_scan, target=target, args=args, timeout=timeout)
         results = self.parser.filter_top_ports(xml_root)
         return results
 
-    def nmap_tcp_scan(self, target, args=None):
+    def nmap_tcp_scan(self, target, args=None, timeout=None):
         """
         Scan target using the nmap tcp connect
 
@@ -375,11 +380,11 @@ class NmapScanTechniques(Nmap):
         """
         if (args):
             assert (isinstance(args, str)), "Expected string got {0} instead".format(type(args))
-        xml_root = self.scan_command(self.tcp_connt, target=target, args=args)
+        xml_root = self.scan_command(self.tcp_connt, target=target, args=args, timeout=timeout)
         results = self.parser.filter_top_ports(xml_root)
         return results
 
-    def nmap_udp_scan(self, target, args=None):
+    def nmap_udp_scan(self, target, args=None, timeout=None):
         """
         Scan target using the nmap tcp connect
 
@@ -389,27 +394,27 @@ class NmapScanTechniques(Nmap):
 
         if (args):
             assert (isinstance(args, str)), "Expected string got {0} instead".format(type(args))
-        xml_root = self.scan_command(self.udp_scan, target=target, args=args)
+        xml_root = self.scan_command(self.udp_scan, target=target, args=args, timeout=timeout)
         results = self.parser.filter_top_ports(xml_root)
         return results
 
-    def nmap_ping_scan(self, target, args=None):
+    def nmap_ping_scan(self, target, args=None, timeout=None):
         """
         Scan target using nmaps' ping scan
 
         @cmd nmap -sP 192.168.178.1
         """
-        xml_root = self.scan_command(self.ping_scan, target=target, args=args)
+        xml_root = self.scan_command(self.ping_scan, target=target, args=args, timeout=timeout)
         results = self.parser.filter_top_ports(xml_root)
         return results
 
-    def nmap_idle_scan(self, target, args=None):
+    def nmap_idle_scan(self, target, args=None, timeout=None):
         """
         Using nmap idle_scan
 
         @cmd nmap -sL 192.168.178.1
         """
-        xml_root = self.scan_command(self.idle_scan, target=target, args=args)
+        xml_root = self.scan_command(self.idle_scan, target=target, args=args, timeout=timeout)
         results = self.parser.filter_top_ports(xml_root)
         return results
 
